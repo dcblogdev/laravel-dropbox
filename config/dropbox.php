@@ -15,5 +15,10 @@ return [
     /*
     * Set the url to trigger the oauth process this url should call return MsGraph::connect();
     */
-    'redirectUri' => env('DROPBOX_OAUTH_URL')
+    'redirectUri' => env('DROPBOX_OAUTH_URL'),
+
+    /**
+     * Set access token, when set will bypass the oauth2 process
+     */
+    'accessToken' => env('DROPBOX_ACCESS_TOKEN', ''),
 ];

@@ -63,7 +63,7 @@ class Dropbox
     public function connect()
     {
         //when no code param redirect to Microsoft
-        if (!request()->has('code')) {
+        if (! request()->has('code')) {
 
             $url = self::$authorizeUrl.'?'.http_build_query([
                 'response_type' => 'code',
@@ -113,6 +113,11 @@ class Dropbox
      */
     public function getAccessToken($returnNullNoAccessToken = null)
     {
+        //use token from .env if exists
+        if (config('dropbox.accessToken') !== '') {
+            return config('dropbox.accessToken');
+        }
+
         //use id if passed otherwise use logged in user
         $id    = auth()->id();
         $token = DropboxToken::where('user_id', $id)->first();
@@ -125,7 +130,8 @@ class Dropbox
                 return null;
             }
 
-            return redirect(config('dropbox.redirectUri'));
+            header('Location: '.config('dropbox.redirectUri'));
+            exit();
         }
 
         // Token is still valid, just return it
@@ -199,7 +205,6 @@ class Dropbox
             return json_decode($response->getBody()->getContents(), true);
 
         } catch (Exception $e) {
-            dd($e->getMessage());
             throw new Exception($e->getResponse()->getBody()->getContents());
         }
     }
