@@ -6,7 +6,7 @@ A Laravel package for working with Dropbox v2 API.
 API documentation can be found at https://www.dropbox.com/developers/documentation/http/documentation
 
 # Full documentation and install instructions 
-[https://docs.daveismyname.blog/laravel-dropbox](https://docs.daveismyname.blog/laravel-box)
+[https://docs.daveismyname.blog/laravel-dropbox](https://docs.daveismyname.blog/laravel-dropbox)
 
 
 ## Change log
