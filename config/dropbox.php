@@ -17,6 +17,11 @@ return [
     */
     'redirectUri' => env('DROPBOX_OAUTH_URL'),
 
+    /*
+    * Set the url to redirecto once authenticated;
+    */
+    'landingUri' => env('DROPBOX_LANDING_URL', '/'),
+
     /**
      * Set access token, when set will bypass the oauth2 process
      */

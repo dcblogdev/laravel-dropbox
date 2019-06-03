@@ -97,7 +97,7 @@ class Dropbox
                 $t->email = $me['email'];
                 $t->save();
 
-                return redirect('/');
+                return redirect(config('dropbox.landingUri'));
 
             } catch (Exception $e) {
                 throw new Exception($e->getMessage());
