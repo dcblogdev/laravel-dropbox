@@ -16,8 +16,8 @@ class Dropbox
     protected static $authorizeUrl = 'https://www.dropbox.com/oauth2/authorize';
     protected static $tokenUrl = 'https://api.dropbox.com/oauth2/token';
 
-    public function __construct() {
-
+    public function __construct()
+    {
     }
 
     public function files()
@@ -25,9 +25,9 @@ class Dropbox
         return new Files();
     }
 
-    protected function ForceStartingSlash($string)
+    protected function forceStartingSlash($string)
     {
-        if (substr( $string, 0, 1 ) !== "/") {
+        if (substr($string, 0, 1) !== "/") {
             $string = "/$string";
         }
 
@@ -52,7 +52,7 @@ class Dropbox
             return self::guzzle($function, $path, $data, $customHeaders, $useToken);
         } else {
             //request verb is not in the $options array
-            throw new Exception($function.' is not a valid HTTP Verb');
+            throw new Exception($function . ' is not a valid HTTP Verb');
         }
     }
 
@@ -63,16 +63,15 @@ class Dropbox
     public function connect()
     {
         //when no code param redirect to Microsoft
-        if (! request()->has('code')) {
+        if (!request()->has('code')) {
 
-            $url = self::$authorizeUrl.'?'.http_build_query([
+            $url = self::$authorizeUrl . '?' . http_build_query([
                 'response_type' => 'code',
                 'client_id' => config('dropbox.clientId'),
                 'redirect_uri' => config('dropbox.redirectUri')
             ]);
 
             return redirect()->away($url);
-
         } elseif (request()->has('code')) {
 
             // With the authorization code, we can retrieve access tokens and other data.
@@ -98,7 +97,6 @@ class Dropbox
                 $t->save();
 
                 return redirect(config('dropbox.landingUri'));
-
             } catch (Exception $e) {
                 throw new Exception($e->getMessage());
             }
@@ -123,14 +121,14 @@ class Dropbox
         $token = DropboxToken::where('user_id', $id)->first();
 
         // Check if tokens exist otherwise run the oauth request
-        if (! isset($token->access_token)) {
+        if (!isset($token->access_token)) {
 
             //don't redirect simply return null when no token found with this option
             if ($returnNullNoAccessToken == true) {
                 return null;
             }
 
-            header('Location: '.config('dropbox.redirectUri'));
+            header('Location: ' . config('dropbox.redirectUri'));
             exit();
         }
 
@@ -144,6 +142,11 @@ class Dropbox
      */
     public function getTokenData()
     {
+        //use token from .env if exists
+        if (config('dropbox.accessToken') !== '') {
+            return false;
+        }
+
         $id = auth()->id();
         return DropboxToken::where('user_id', $id)->first();
     }
@@ -192,18 +195,17 @@ class Dropbox
             }
 
             if ($customHeaders !== null) {
-                foreach($customHeaders as $key => $value) {
+                foreach ($customHeaders as $key => $value) {
                     $headers[$key] = $value;
                 }
             }
 
-            $response = $client->$type(self::$baseUrl.$request, [
+            $response = $client->$type(self::$baseUrl . $request, [
                 'headers' => $headers,
                 'body' => json_encode($data)
             ]);
 
             return json_decode($response->getBody()->getContents(), true);
-
         } catch (Exception $e) {
             throw new Exception($e->getResponse()->getBody()->getContents());
         }

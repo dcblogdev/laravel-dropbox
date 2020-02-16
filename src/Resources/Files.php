@@ -8,13 +8,14 @@ use Exception;
 
 class Files extends Dropbox
 {
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
     }
 
     public function listContents($path = '')
     {
-        $pathRequest = $this->ForceStartingSlash($path);
+        $pathRequest = $this->forceStartingSlash($path);
 
         return $this->post('files/list_folder', [
             'path' => $path == '' ? '' : $pathRequest
@@ -30,7 +31,7 @@ class Files extends Dropbox
 
     public function delete($path)
     {
-        $path = $this->ForceStartingSlash($path);
+        $path = $this->forceStartingSlash($path);
 
         return $this->post('files/delete_v2', [
             'path' => $path
@@ -39,7 +40,7 @@ class Files extends Dropbox
 
     public function createFolder($path)
     {
-        $path = $this->ForceStartingSlash($path);
+        $path = $this->forceStartingSlash($path);
 
         return $this->post('files/create_folder', [
             'path' => $path
@@ -57,43 +58,50 @@ class Files extends Dropbox
         ]);
     }
 
-    public function upload($path, $file)
+    public function upload($path, $uploadPath)
     {
-        $path = $this->ForceStartingSlash($path);
+        $path = $this->forceStartingSlash($path);
+        $uploadPath = $this->forceStartingSlash($uploadPath);
 
         try {
-            $client = new Client;
 
-            $response = $client->post("https://content.dropboxapi.com/2/files/upload", [
-                'headers' => [
-                    'Authorization' => 'Bearer '.$this->getAccessToken(),
-                    'Dropbox-API-Arg' => json_encode([
-                        'path' => $path,
-                        'mode' => 'add',
-                        'autorename' => true
-                    ]),
-                    'Content-Type' => 'application/octet-stream',
-                    'data-binary' => "@$file"
-                ]
+            $fp = fopen($path, 'rb');
+            $filesize = filesize($path);
+
+            $ch = curl_init('https://content.dropboxapi.com/2/files/upload');
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Authorization: Bearer ' . $this->getAccessToken(),
+                'Content-Type: application/octet-stream',
+                'Dropbox-API-Arg: ' .
+                    json_encode([
+                        "path" => $uploadPath,
+                        "mode" => "add",
+                        "autorename" => true,
+                        "mute" => false
+                    ])
             ]);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, fread($fp, $filesize));
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            $response = curl_exec($ch);
+            curl_close($ch);
 
-            return json_decode($response->getBody()->getContents(), true);
-
+            return $response;
         } catch (Exception $e) {
-            throw new Exception($e->getResponse()->getBody()->getContents());
+            throw new Exception($e->getMessage());
         }
     }
 
     public function download($path)
     {
-        $path = $this->ForceStartingSlash($path);
+        $path = $this->forceStartingSlash($path);
 
         try {
             $client = new Client;
 
             $response = $client->post("https://content.dropboxapi.com/2/files/download", [
                 'headers' => [
-                    'Authorization' => 'Bearer '.$this->getAccessToken(),
+                    'Authorization' => 'Bearer ' . $this->getAccessToken(),
                     'Dropbox-API-Arg' => json_encode([
                         'path' => $path
                     ])
@@ -101,7 +109,6 @@ class Files extends Dropbox
             ]);
 
             return $response->getBody()->getContents();
-
         } catch (Exception $e) {
             throw new Exception($e->getResponse()->getBody()->getContents());
         }
