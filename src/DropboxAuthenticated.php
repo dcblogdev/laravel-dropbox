@@ -1,9 +1,9 @@
 <?php
 
-namespace Daveismyname\Dropbox;
+namespace Dcblogdev\Dropbox;
 
 use Closure;
-use Daveismyname\Dropbox\Facades\Dropbox;
+use Dcblogdev\Dropbox\Facades\Dropbox;
 
 class DropboxAuthenticated
 {

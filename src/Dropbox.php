@@ -1,10 +1,10 @@
 <?php
 
-namespace Daveismyname\Dropbox;
+namespace Dcblogdev\Dropbox;
 
-use Daveismyname\Dropbox\Facades\Dropbox as Api;
-use Daveismyname\Dropbox\Models\DropboxToken;
-use Daveismyname\Dropbox\Resources\Files;
+use Dcblogdev\Dropbox\Facades\Dropbox as Api;
+use Dcblogdev\Dropbox\Models\DropboxToken;
+use Dcblogdev\Dropbox\Resources\Files;
 
 use GuzzleHttp\Client;
 use Exception;

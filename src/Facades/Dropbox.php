@@ -1,6 +1,6 @@
 <?php
 
-namespace Daveismyname\Dropbox\Facades;
+namespace Dcblogdev\Dropbox\Facades;
 
 use Illuminate\Support\Facades\Facade;
 

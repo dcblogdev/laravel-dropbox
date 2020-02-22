@@ -1,15 +1,15 @@
 {
-    "name": "daveismyname/laravel-dropbox",
+    "name": "dcblogdev/laravel-dropbox",
     "description": "A Laravel Dropbox v2 package",
     "license": "MIT",
     "authors": [
         {
             "name": "David Carr",
-            "email": "dave@daveismyname.com",
-            "homepage": "https://daveismyname.blog"
+            "email": "dave@dcblog.dev",
+            "homepage": "https://dcblog.dev"
         }
     ],
-    "homepage": "https://github.com/daveismyname/laravel-dropbox",
+    "homepage": "https://github.com/dcblogdev/laravel-dropbox",
     "keywords": ["Laravel", "Dropbox"],
     "require": {
         "illuminate/support": "5.5.x|5.6.x|5.7.x|5.8.x|6.x",
@@ -17,16 +17,16 @@
     },
     "autoload": {
         "psr-4": {
-            "Daveismyname\\Dropbox\\": "src/"
+            "Dcblogdev\\Dropbox\\": "src/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Daveismyname\\Dropbox\\DropboxServiceProvider"
+                "Dcblogdev\\Dropbox\\DropboxServiceProvider"
             ],
             "aliases": {
-                "Dropbox": "Daveismyname\\Dropbox\\Facades\\Dropbox"
+                "Dropbox": "Dcblogdev\\Dropbox\\Facades\\Dropbox"
             }
         }
     }

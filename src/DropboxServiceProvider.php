@@ -1,9 +1,9 @@
 <?php
 
-namespace Daveismyname\Dropbox;
+namespace Dcblogdev\Dropbox;
 
 use Illuminate\Support\ServiceProvider;
-use Daveismyname\Dropbox\DropboxAuthenticated;
+use Dcblogdev\Dropbox\DropboxAuthenticated;
 
 class DropboxServiceProvider extends ServiceProvider
 {

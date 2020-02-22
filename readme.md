@@ -6,7 +6,7 @@ A Laravel package for working with Dropbox v2 API.
 API documentation can be found at https://www.dropbox.com/developers/documentation/http/documentation
 
 # Full documentation and install instructions 
-[https://docs.daveismyname.blog/laravel-dropbox](https://docs.daveismyname.blog/laravel-dropbox)
+[https://docs.dcblog.dev/laravel-dropbox](https://docs.dcblog.dev/laravel-dropbox)
 
 
 ## Change log
@@ -29,14 +29,13 @@ Contributions are accepted via Pull Requests on [Github][4].
 
 ## Security
 
-If you discover any security related issues, please email dave@daveismyname.com email instead of using the issue tracker.
+If you discover any security related issues, please email dave@dcblog.dev email instead of using the issue tracker.
 
 ## License
 
 license. Please see the [license file][6] for more information.
 
-[2]:    https://aad.portal.azure.com/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/Overview
 [3]:    changelog.md
-[4]:    https://github.com/daveismyname/laravel-microsoft-graph
+[4]:    https://github.com/dcblogdev/laravel-dropbox
 [5]:    http://semver.org/
 [6]:    license.md

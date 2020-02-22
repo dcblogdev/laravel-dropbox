@@ -1,6 +1,6 @@
 <?php
 
-namespace Daveismyname\Dropbox\Models;
+namespace Dcblogdev\Dropbox\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
