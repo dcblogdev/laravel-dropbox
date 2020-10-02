@@ -13,7 +13,7 @@
     "keywords": ["Laravel", "Dropbox"],
     "require": {
         "illuminate/support": "^5.5|^5.6|^5.7|^5.8|^6.0|^7.0|^8.0",
-        "guzzlehttp/guzzle": "^6"
+        "guzzlehttp/guzzle": "^6|^7"
     },
     "autoload": {
         "psr-4": {
