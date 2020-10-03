@@ -6,6 +6,9 @@ use Dcblogdev\Dropbox\Dropbox;
 use GuzzleHttp\Client;
 use Exception;
 
+use function PHPUnit\Framework\throwException;
+use function trigger_error;
+
 class Files extends Dropbox
 {
     public function __construct()
@@ -58,15 +61,18 @@ class Files extends Dropbox
         ]);
     }
 
-    public function upload($path, $uploadPath)
+    public function upload($path, $uploadPath, $mode = 'add')
     {
-        $path = $this->forceStartingSlash($path);
-        $uploadPath = $this->forceStartingSlash($uploadPath);
+        if ($uploadPath == '') {
+            throw new Exception('File is required');
+        }
+
+	    $path     = ($path !== '') ? $this->forceStartingSlash($path) : '';
+	    $contents = $this->getContents($uploadPath);
+        $filename = $this->getFilenameFromPath($uploadPath);
+        $path     = $path.$filename;
 
         try {
-
-            $fp = fopen($path, 'rb');
-            $filesize = filesize($path);
 
             $ch = curl_init('https://content.dropboxapi.com/2/files/upload');
             curl_setopt($ch, CURLOPT_HTTPHEADER, [
@@ -74,14 +80,14 @@ class Files extends Dropbox
                 'Content-Type: application/octet-stream',
                 'Dropbox-API-Arg: ' .
                     json_encode([
-                        "path" => $uploadPath,
-                        "mode" => "add",
+                        "path" => $path,
+                        "mode" => $mode,
                         "autorename" => true,
                         "mute" => false
                     ])
             ]);
             curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, fread($fp, $filesize));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $contents);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             $response = curl_exec($ch);
             curl_close($ch);
@@ -112,5 +118,17 @@ class Files extends Dropbox
         } catch (Exception $e) {
             throw new Exception($e->getResponse()->getBody()->getContents());
         }
+    }
+
+    protected function getFilenameFromPath($filePath)
+    {
+        $parts = explode('/', $filePath);
+        $filename = end($parts);
+        return $this->forceStartingSlash($filename);
+    }
+
+    protected function getContents($filePath)
+    {
+        return file_get_contents($filePath);
     }
 }
