@@ -10,7 +10,7 @@ return [
     /*
     * set the client secret
     */
-    'clientSecret' => env('DROPBOX_SECRET'),
+    'clientSecret' => env('DROPBOX_SECRET_ID'),
 
     /*
     * Set the url to trigger the oauth process this url should call return MsGraph::connect();
