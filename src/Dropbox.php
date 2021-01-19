@@ -68,7 +68,8 @@ class Dropbox
             $url = self::$authorizeUrl . '?' . http_build_query([
                 'response_type' => 'code',
                 'client_id' => config('dropbox.clientId'),
-                'redirect_uri' => config('dropbox.redirectUri')
+                'redirect_uri' => config('dropbox.redirectUri'),
+                'scope' => config('dropbox.scopes')
             ]);
 
             return redirect()->away($url);

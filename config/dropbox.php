@@ -10,10 +10,10 @@ return [
     /*
     * set the client secret
     */
-    'clientSecret' => env('DROPBOX_SECRET'),
+    'clientSecret' => env('DROPBOX_SECRET_ID'),
 
     /*
-    * Set the url to trigger the oauth process this url should call return MsGraph::connect();
+    * Set the url to trigger the oauth process this url should call return Dropbox::connect();
     */
     'redirectUri' => env('DROPBOX_OAUTH_URL'),
 
@@ -26,4 +26,9 @@ return [
      * Set access token, when set will bypass the oauth2 process
      */
     'accessToken' => env('DROPBOX_ACCESS_TOKEN', ''),
+
+    /*
+    set the scopes to be used
+    */
+    'scopes' => 'account_info.read files.metadata.write files.metadata.read files.content.write files.content.read',
 ];
