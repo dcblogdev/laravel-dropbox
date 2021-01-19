@@ -1,13 +1,12 @@
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/dcblogdev/laravel-dropbox.svg?style=flat-square)](https://packagist.org/packages/dcblogdev/laravel-dropbox)
+[![Total Downloads](https://img.shields.io/packagist/dt/dcblogdev/laravel-dropbox.svg?style=flat-square)](https://packagist.org/packages/dcblogdev/laravel-dropbox)
 
-# Laravel Dropbox
+![Logo](https://repository-images.githubusercontent.com/189828582/4defa980-49c1-11eb-9668-76f985726c80)
 
 A Laravel package for working with Dropbox v2 API.
 
-API documentation can be found at https://www.dropbox.com/developers/documentation/http/documentation
-
-# Full documentation and install instructions 
-[https://docs.dcblog.dev/laravel-dropbox](https://docs.dcblog.dev/laravel-dropbox)
-
+# Documentation and install instructions 
+[https://dcblog.dev/docs/laravel-dropbox](https://dcblog.dev/docs/laravel-dropbox)
 
 ## Change log
 
