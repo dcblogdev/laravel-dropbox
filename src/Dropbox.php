@@ -57,15 +57,6 @@ class Dropbox
     }
 
     /**
-     * @return object
-     */
-    public function isConnected()
-    {
-        return $this->getTokenData() == null ? false : true;
-    }
-
-
-    /**
      * Make a connection or return a token where it's valid
      * @return mixed
      */
@@ -112,6 +103,40 @@ class Dropbox
                 throw new Exception($e->getMessage());
             }
         }
+    }
+
+    /**
+     * @return object
+     */
+    public function isConnected()
+    {
+        return $this->getTokenData() == null ? false : true;
+    }
+
+    /**
+     * Disables the access token used to authenticate the call, redirects back to the provided path
+     * @param string $redirectPath
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function disconnect($redirectPath = '/')
+    {
+        $id = auth()->id();
+
+        $client = new Client;
+        $response = $client->post(self::$baseUrl.'auth/token/revoke', [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $this->getAccessToken()
+            ]
+        ]);
+
+        //delete token from db
+        $token = DropboxToken::where('user_id', $id)->first();
+        if ($token !== null) {
+            $token->delete();
+        }
+
+        header('Location: ' .url($redirectPath));
+        exit();
     }
 
     /**
