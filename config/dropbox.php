@@ -27,6 +27,14 @@ return [
      */
     'accessToken' => env('DROPBOX_ACCESS_TOKEN', ''),
 
+    /**
+     * Set access type, options are offline and online
+     * Offline - will return a short-lived access_token and a long-lived refresh_token that can be used to request a new short-lived access token as long as a user's approval remains valid.
+     *
+     * Online - will return a short-lived access_token
+     */
+    'accessType' => env('DROPBOX_ACCESS_TYPE', 'offline'),
+
     /*
     set the scopes to be used
     */
