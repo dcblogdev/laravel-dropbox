@@ -57,6 +57,15 @@ class Dropbox
     }
 
     /**
+     * @return object
+     */
+    public function isConnected()
+    {
+        return $this->getTokenData() == null ? false : true;
+    }
+
+
+    /**
      * Make a connection or return a token where it's valid
      * @return mixed
      */
@@ -69,7 +78,8 @@ class Dropbox
                 'response_type' => 'code',
                 'client_id' => config('dropbox.clientId'),
                 'redirect_uri' => config('dropbox.redirectUri'),
-                'scope' => config('dropbox.scopes')
+                'scope' => config('dropbox.scopes'),
+                'token_access_type' => config('dropbox.accessType')
             ]);
 
             return redirect()->away($url);
@@ -133,6 +143,28 @@ class Dropbox
             exit();
         }
 
+        if (isset($token->refresh_token)) {
+            // Check if token is expired
+            // Get current time + 5 minutes (to allow for time differences)
+            $now = time() + 300;
+            if ($token->expires_in <= $now) {
+                // Token is expired (or very close to it) so let's refresh
+                $params = [
+                    'grant_type'    => 'refresh_token',
+                    'refresh_token' => $token->refresh_token,
+                    'client_id'     => config('dropbox.clientId'),
+                    'client_secret' => config('dropbox.clientSecret')
+                ];
+
+                $tokenResponse       = $this->dopost(self::$tokenUrl, $params);
+                $token->access_token = $tokenResponse['access_token'];
+                $token->expires_in   = now()->addseconds($tokenResponse['expires_in']);
+                $token->save();
+
+                return $token->access_token;
+            }
+        }
+
         // Token is still valid, just return it
         return $token->access_token;
     }
@@ -164,14 +196,22 @@ class Dropbox
     {
         $id = auth()->id();
 
-        //cretate a new record or if the user id exists update record
-        return DropboxToken::updateOrCreate(['user_id' => $id], [
+        $data = [
             'user_id'       => $id,
             'access_token'  => $token['access_token'],
+            'expires_in'    => now()->addseconds($token['expires_in']),
             'token_type'    => $token['token_type'],
             'uid'           => $token['uid'],
-            'account_id'    => $token['account_id']
-        ]);
+            'account_id'    => $token['account_id'],
+            'scope'         => $token['scope']
+        ];
+
+        if (isset($token['refresh_token'])) {
+            $data['refresh_token'] = $token['refresh_token'];
+        }
+
+        //cretate a new record or if the user id exists update record
+        return DropboxToken::updateOrCreate(['user_id' => $id], $data);
     }
 
     /**
@@ -207,8 +247,10 @@ class Dropbox
             ]);
 
             return json_decode($response->getBody()->getContents(), true);
-        } catch (Exception $e) {
+        } catch (ClientException $e) {
             throw new Exception($e->getResponse()->getBody()->getContents());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
         }
     }
 
