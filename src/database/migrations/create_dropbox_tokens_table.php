@@ -18,9 +18,12 @@ class CreateDropboxTokensTable extends Migration
             $table->integer('user_id')->nullable();
             $table->string('email')->nullable();
             $table->text('access_token');
+            $table->text('refresh_token')->nullable();
+            $table->datetime('expires_in');
             $table->string('token_type')->nullable();
             $table->string('uid');
             $table->string('account_id');
+            $table->text('scope');
             $table->timestamps();
         });
     }
