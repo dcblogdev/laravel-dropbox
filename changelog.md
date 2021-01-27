@@ -77,3 +77,7 @@ Set access type, options are **offline** and **online**
 ```
 
 Added support for refresh tokens, now when a token is about to expire and there is a refresh token stored, a new access_token will be refreshed by using the refresh token this happens automatically when any request to Dropbox is attempted.
+
+## Version 3.0.1 
+
+Improved download method, request a path, it will be downloaded.
