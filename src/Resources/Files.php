@@ -108,7 +108,6 @@ class Files extends Dropbox
             $response = $client->post("https://content.dropboxapi.com/2/files/download", [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $this->getAccessToken(),
-                    'Content-Type' => 'application/octet-stream',
                     'Dropbox-API-Arg' => json_encode([
                         'path' => $path
                     ])
