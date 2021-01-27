@@ -108,15 +108,29 @@ class Files extends Dropbox
             $response = $client->post("https://content.dropboxapi.com/2/files/download", [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $this->getAccessToken(),
+                    'Content-Type' => 'application/octet-stream',
                     'Dropbox-API-Arg' => json_encode([
                         'path' => $path
                     ])
                 ]
             ]);
 
-            return $response->getBody()->getContents();
-        } catch (Exception $e) {
+            $header = json_decode($response->getHeader('Dropbox-Api-Result')[0], true);
+            $body = $response->getBody()->getContents();
+            $folder = 'dropbox-temp';
+
+            if (! is_dir($folder)) {
+                mkdir($folder);
+            }
+
+            file_put_contents($folder.$header['name'], $body);
+
+            return response()->download($folder.$header['name'], $header['name'])->deleteFileAfterSend();
+
+        } catch (ClientException $e) {
             throw new Exception($e->getResponse()->getBody()->getContents());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
         }
     }
 
