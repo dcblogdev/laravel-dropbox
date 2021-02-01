@@ -32,6 +32,16 @@ class Files extends Dropbox
         ]);
     }
 
+    public function move($fromPath, $toPath, $autoRename = false, $allowOwnershipTransfer = false)
+    {
+        $this->post('files/move_v2', [
+            "from_path" => $fromPath,
+            "to_path" => $toPath,
+            "autorename" => $autoRename,
+            "allow_ownership_transfer" => $allowOwnershipTransfer
+        ]);
+    }
+
     public function delete($path)
     {
         $path = $this->forceStartingSlash($path);
