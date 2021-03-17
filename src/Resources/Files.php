@@ -108,7 +108,7 @@ class Files extends Dropbox
         }
     }
 
-    public function download($path)
+    public function download($path, $destFolder = '')
     {
         $path = $this->forceStartingSlash($path);
 
@@ -126,15 +126,18 @@ class Files extends Dropbox
 
             $header = json_decode($response->getHeader('Dropbox-Api-Result')[0], true);
             $body = $response->getBody()->getContents();
-            $folder = 'dropbox-temp';
 
-            if (! is_dir($folder)) {
-                mkdir($folder);
+            if (empty($destFolder)){
+                $destFolder = 'dropbox-temp';
+
+                if (! is_dir($destFolder)) {
+                    mkdir($destFolder);
+                }
             }
 
-            file_put_contents($folder.$header['name'], $body);
+            file_put_contents($destFolder.$header['name'], $body);
 
-            return response()->download($folder.$header['name'], $header['name'])->deleteFileAfterSend();
+            return response()->download($destFolder.$header['name'], $header['name'])->deleteFileAfterSend();
 
         } catch (ClientException $e) {
             throw new Exception($e->getResponse()->getBody()->getContents());
