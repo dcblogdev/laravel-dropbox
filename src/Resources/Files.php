@@ -143,6 +143,31 @@ class Files extends Dropbox
         }
     }
 
+    public function getContentsFile($path)
+    {
+        $path = $this->forceStartingSlash($path);
+
+        try {
+            $client = new Client;
+
+            $response = $client->post("https://content.dropboxapi.com/2/files/download", [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $this->getAccessToken(),
+                    'Dropbox-API-Arg' => json_encode([
+                                                         'path' => $path
+                                                     ])
+                ]
+            ]);
+
+            return $response->getBody()->getContents();
+
+        } catch (ClientException $e) {
+            throw new Exception($e->getResponse()->getBody()->getContents());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
     protected function getFilenameFromPath($filePath)
     {
         $parts = explode('/', $filePath);
