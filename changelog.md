@@ -81,3 +81,15 @@ Added support for refresh tokens, now when a token is about to expire and there 
 ## Version 3.0.1 
 
 Improved download method, request a path, it will be downloaded.
+
+## Version 3.1.0
+
+Add an optional destination folder for the downloaded files in **download** method.
+```php
+public function download($path, $destFolder = '')
+```
+
+Add a function **getContentsFile** to get the content of a file without having to download.
+```php
+public function getContentsFile($path)
+```
