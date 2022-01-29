@@ -78,6 +78,25 @@ Set access type, options are **offline** and **online**
 
 Added support for refresh tokens, now when a token is about to expire and there is a refresh token stored, a new access_token will be refreshed by using the refresh token this happens automatically when any request to Dropbox is attempted.
 
-## Version 3.0.1 
+## Version 3.0.2 
 
 Improved download method, request a path, it will be downloaded.
+
+## Version 3.0.3
+
+added a move() method to the files() resource Latest
+Move accepts 4 params:
+
+- `$fromPath` - provide the path for the existing folder/file
+- `$toPath` - provide the new path for the existing golder/file must start with a /
+- `$autoRename` - If there's a conflict, have the Dropbox server try to autorename the file to avoid the conflict. The default for this field is false.
+$allowOwnershipTransfer - Allow moves by owner even if it would result in an ownership transfer for the content being moved. This does not apply to copies. The default for this field is false.
+
+```php
+Dropbox::files()->move($fromPath, $toPath, $autoRename = false, $allowOwnershipTransfer = false); 
+```
+
+## Version 3.0.4
+
+added support for Laravel 9
+
