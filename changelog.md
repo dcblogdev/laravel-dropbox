@@ -99,4 +99,3 @@ Dropbox::files()->move($fromPath, $toPath, $autoRename = false, $allowOwnershipT
 ## Version 3.0.4
 
 added support for Laravel 9
-
