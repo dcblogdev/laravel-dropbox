@@ -3,6 +3,12 @@
 
 ![Logo](https://repository-images.githubusercontent.com/189828582/4defa980-49c1-11eb-9668-76f985726c80)
 
+## Community
+
+There is a Discord community. https://discord.gg/VYau8hgwrm For quick help, ask questions in the appropriate channel.
+
+## Introduction
+
 A Laravel package for working with Dropbox v2 API.
 
 Dropbox API documentation can be found at:
