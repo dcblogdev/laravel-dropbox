@@ -12,8 +12,10 @@
     "homepage": "https://github.com/dcblogdev/laravel-dropbox",
     "keywords": ["Laravel", "Dropbox"],
     "require": {
-        "illuminate/support": "^5.5|^5.6|^5.7|^5.8|^6.0|^7.0|^8.0|^9.0|^10.0|^11.0",
-        "guzzlehttp/guzzle": "^6|^7"
+        "illuminate/support": "^5.5|^5.6|^5.7|^5.8|^6.0|^7.0|^8.0|^9.0|^10.0|^11.7",
+        "guzzlehttp/guzzle": "^6|^7.8.1",
+        "ext-json": "*",
+        "ext-curl": "*"
     },
     "autoload": {
         "psr-4": {
