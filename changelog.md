@@ -2,6 +2,10 @@
 
 All notable changes to `Laravel Dropbox` will be documented in this file.
 
+## Unreleased
+
+- Set `DROPBOX_ROOT_NAMESPACE_ID` to keep using a specific namespace; otherwise Dropbox uses the authenticated user's default root.
+
 ## Version 1.0.0
 
 - Everything

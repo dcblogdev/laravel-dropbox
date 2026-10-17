@@ -85,7 +85,7 @@ class Files extends Dropbox
         try {
 
             $ch = curl_init('https://content.dropboxapi.com/2/files/upload');
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            $headers = [
                 'Authorization: Bearer ' . $this->getAccessToken(),
                 'Content-Type: application/octet-stream',
                 'Dropbox-API-Arg: ' .
@@ -95,7 +95,11 @@ class Files extends Dropbox
                         "autorename" => true,
                         "mute" => false
                     ])
-            ]);
+            ];
+            foreach ($this->getPathRootHeaders() as $name => $value) {
+                $headers[] = $name . ': ' . $value;
+            }
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $contents);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -113,15 +117,15 @@ class Files extends Dropbox
         $path = $this->forceStartingSlash($path);
 
         try {
-            $client = new Client;
+            $client = $this->createHttpClient();
 
             $response = $client->post("https://content.dropboxapi.com/2/files/download", [
-                'headers' => [
+                'headers' => array_merge([
                     'Authorization' => 'Bearer ' . $this->getAccessToken(),
                     'Dropbox-API-Arg' => json_encode([
                         'path' => $path
                     ])
-                ]
+                ], $this->getPathRootHeaders())
             ]);
 
             $header = json_decode($response->getHeader('Dropbox-Api-Result')[0], true);
@@ -151,15 +155,15 @@ class Files extends Dropbox
         $path = $this->forceStartingSlash($path);
 
         try {
-            $client = new Client;
+            $client = $this->createHttpClient();
 
             $response = $client->post("https://content.dropboxapi.com/2/files/download", [
-                'headers' => [
+                'headers' => array_merge([
                     'Authorization' => 'Bearer ' . $this->getAccessToken(),
                     'Dropbox-API-Arg' => json_encode([
                                                          'path' => $path
                                                      ])
-                ]
+                ], $this->getPathRootHeaders())
             ]);
 
             return $response->getBody()->getContents();
