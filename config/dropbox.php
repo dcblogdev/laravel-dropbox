@@ -28,6 +28,11 @@ return [
     'accessToken' => env('DROPBOX_ACCESS_TOKEN', ''),
 
     /**
+     * Set the Dropbox root namespace ID. Leave empty to use the authenticated user's default root.
+     */
+    'rootNamespaceId' => env('DROPBOX_ROOT_NAMESPACE_ID'),
+
+    /**
      * Set access type, options are offline and online
      * Offline - will return a short-lived access_token and a long-lived refresh_token that can be used to request a new short-lived access token as long as a user's approval remains valid.
      *

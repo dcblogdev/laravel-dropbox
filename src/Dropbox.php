@@ -34,6 +34,27 @@ class Dropbox
         return $string;
     }
 
+    protected function getPathRootHeaders()
+    {
+        $rootNamespaceId = config('dropbox.rootNamespaceId');
+
+        if ($rootNamespaceId === null || $rootNamespaceId === '') {
+            return [];
+        }
+
+        return [
+            'Dropbox-API-Path-Root' => json_encode([
+                '.tag' => 'root',
+                'root' => $rootNamespaceId
+            ])
+        ];
+    }
+
+    protected function createHttpClient()
+    {
+        return new Client;
+    }
+
     /**
      * __call catches all requests when no founf method is requested
      * @param  $function - the verb to execute
@@ -250,11 +271,12 @@ class Dropbox
     protected function guzzle($type, $request, $data = [], $customHeaders = null, $useToken = true)
     {
         try {
-            $client = new Client;
+            $client = $this->createHttpClient();
 
             $headers = [
                 'content-type' => 'application/json'
             ];
+            $headers = array_merge($headers, $this->getPathRootHeaders());
 
             if ($useToken == true) {
                 $headers['Authorization'] = 'Bearer ' . $this->getAccessToken();

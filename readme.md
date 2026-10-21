@@ -80,6 +80,11 @@ return [
     'accessToken' => env('DROPBOX_ACCESS_TOKEN', ''),
 
     /**
+     * Set the Dropbox root namespace ID. Leave empty to use the authenticated user's default root.
+     */
+    'rootNamespaceId' => env('DROPBOX_ROOT_NAMESPACE_ID'),
+
+    /**
      * Set access type, options are offline and online
      * Offline - will return a short-lived access_token and a long-lived refresh_token that can be used to request a new short-lived access token as long as a user's approval remains valid.
      *
@@ -113,7 +118,14 @@ DROPBOX_SECRET_ID=
 DROPBOX_OAUTH_URL=https://domain.com/dropbox/connect
 DROPBOX_LANDING_URL=https://domain.com/dropbox
 DROPBOX_ACCESS_TYPE=offline
+DROPBOX_ROOT_NAMESPACE_ID=
 ```
+
+`DROPBOX_ROOT_NAMESPACE_ID` is optional. When set, the package sends the Dropbox `Dropbox-API-Path-Root` header for that namespace. The ID is available as `root_info.root_namespace_id` from `users/get_current_account`. When unset, Dropbox uses the authenticated user's normal root.
+
+### Upgrade note
+
+Previous versions sent a package-specific namespace ID with API requests and some file operations. That implicit namespace has been removed. To continue addressing the same namespace, set `DROPBOX_ROOT_NAMESPACE_ID` to its namespace ID. Leaving it empty uses the authenticated user's default root.
 
 Bypass Oauth2
 You can bypass the oauth2 process by generating an access token in your dropbox app and entering it on the .env file:

@@ -77,6 +77,18 @@ class Files extends Dropbox
             throw new Exception('File is required');
         }
 
+        $fileSize = filesize($uploadPath);
+
+        // Dropbox simple upload limit is 150 MB.
+        // Use upload sessions for larger files.
+        if ($fileSize > 140 * 1024 * 1024) {
+            return $this->uploadLarge(
+                $path,
+                $uploadPath,
+                $mode
+            );
+        }
+
 	    $path     = ($path !== '') ? $this->forceStartingSlash($path) : '';
 	    $contents = $this->getContents($uploadPath);
         $filename = $this->getFilenameFromPath($uploadPath);
@@ -85,7 +97,7 @@ class Files extends Dropbox
         try {
 
             $ch = curl_init('https://content.dropboxapi.com/2/files/upload');
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            $headers = [
                 'Authorization: Bearer ' . $this->getAccessToken(),
                 'Content-Type: application/octet-stream',
                 'Dropbox-API-Arg: ' .
@@ -95,7 +107,11 @@ class Files extends Dropbox
                         "autorename" => true,
                         "mute" => false
                     ])
-            ]);
+            ];
+            foreach ($this->getPathRootHeaders() as $name => $value) {
+                $headers[] = $name . ': ' . $value;
+            }
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $contents);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -113,15 +129,15 @@ class Files extends Dropbox
         $path = $this->forceStartingSlash($path);
 
         try {
-            $client = new Client;
+            $client = $this->createHttpClient();
 
             $response = $client->post("https://content.dropboxapi.com/2/files/download", [
-                'headers' => [
+                'headers' => array_merge([
                     'Authorization' => 'Bearer ' . $this->getAccessToken(),
                     'Dropbox-API-Arg' => json_encode([
                         'path' => $path
                     ])
-                ]
+                ], $this->getPathRootHeaders())
             ]);
 
             $header = json_decode($response->getHeader('Dropbox-Api-Result')[0], true);
@@ -151,15 +167,15 @@ class Files extends Dropbox
         $path = $this->forceStartingSlash($path);
 
         try {
-            $client = new Client;
+            $client = $this->createHttpClient();
 
             $response = $client->post("https://content.dropboxapi.com/2/files/download", [
-                'headers' => [
+                'headers' => array_merge([
                     'Authorization' => 'Bearer ' . $this->getAccessToken(),
                     'Dropbox-API-Arg' => json_encode([
                                                          'path' => $path
                                                      ])
-                ]
+                ], $this->getPathRootHeaders())
             ]);
 
             return $response->getBody()->getContents();
@@ -182,4 +198,140 @@ class Files extends Dropbox
     {
         return file_get_contents($filePath);
     }
+
+
+    protected function uploadLarge($path, $uploadPath, $mode = 'add')
+    {
+        if (!is_file($uploadPath)) {
+            throw new \Exception('File not found');
+        }
+
+        $chunkSize = 8 * 1024 * 1024; // 8 MB
+        $fileSize = filesize($uploadPath);
+        $filename = $this->getFilenameFromPath($uploadPath);
+        $path = ($path !== '')
+            ? $this->forceStartingSlash($path)
+            : '';
+
+        $destination = $path . $filename;
+
+        $file = fopen($uploadPath, 'rb');
+
+        if ($file === false) {
+            throw new \Exception('Cannot open file');
+        }
+
+        $request = function ($endpoint, $data, $args) {
+            $ch = curl_init(
+                'https://content.dropboxapi.com/2/' . $endpoint
+            );
+
+            $headers = [
+                'Authorization: Bearer ' . $this->getAccessToken(),
+                'Content-Type: application/octet-stream',
+                'Dropbox-API-Arg: ' . json_encode($args),
+            ];
+
+            foreach ($this->getPathRootHeaders() as $name => $value) {
+                $headers[] = $name . ': ' . $value;
+            }
+
+            curl_setopt_array($ch, [
+                CURLOPT_POST => true,
+                CURLOPT_HTTPHEADER => $headers,
+                CURLOPT_POSTFIELDS => $data,
+                CURLOPT_RETURNTRANSFER => true,
+            ]);
+
+            $response = curl_exec($ch);
+            $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $error = curl_error($ch);
+            curl_close($ch);
+
+            if ($response === false || $status >= 400) {
+                throw new \Exception(
+                    "Dropbox upload failed ($status): " .
+                    ($response ?: $error)
+                );
+            }
+
+            return json_decode($response, true);
+        };
+
+        try {
+            $firstChunk = fread($file, $chunkSize);
+
+            $session = $request(
+                'files/upload_session/start',
+                $firstChunk,
+                ['close' => false]
+            );
+
+            $sessionId = $session['session_id'];
+            $offset = strlen($firstChunk);
+
+            while ($offset < $fileSize) {
+                $chunk = fread($file, $chunkSize);
+
+                if ($chunk === false || $chunk === '') {
+                    throw new \Exception('Unexpected end of file');
+                }
+
+                $length = strlen($chunk);
+
+                if ($offset + $length === $fileSize) {
+                    return $request(
+                        'files/upload_session/finish',
+                        $chunk,
+                        [
+                            'cursor' => [
+                                'session_id' => $sessionId,
+                                'offset' => $offset,
+                            ],
+                            'commit' => [
+                                'path' => $destination,
+                                'mode' => $mode,
+                                'autorename' => true,
+                                'mute' => false,
+                            ],
+                        ]
+                    );
+                }
+
+                $request(
+                    'files/upload_session/append_v2',
+                    $chunk,
+                    [
+                        'cursor' => [
+                            'session_id' => $sessionId,
+                            'offset' => $offset,
+                        ],
+                        'close' => false,
+                    ]
+                );
+
+                $offset += $length;
+            }
+
+            return $request(
+                'files/upload_session/finish',
+                '',
+                [
+                    'cursor' => [
+                        'session_id' => $sessionId,
+                        'offset' => $offset,
+                    ],
+                    'commit' => [
+                        'path' => $destination,
+                        'mode' => $mode,
+                        'autorename' => true,
+                        'mute' => false,
+                    ],
+                ]
+            );
+        } finally {
+            fclose($file);
+        }
+    }
+
 }
